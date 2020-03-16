@@ -1,15 +1,13 @@
 import gql from 'graphql-tag'
 
 export default gql`
-  mutation createConversation(
-    $name: String
+  mutation updateConversation(
+    $id: String
     $participantIds: [ID!]!
-    $text: String
   ) {
-    createConversation(
-      name: $name
+    updateConversation(
+      id: $id
       participantIds: $participantIds
-      text: $text
     ) {
       id
       name

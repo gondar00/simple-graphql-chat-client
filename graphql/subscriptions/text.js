@@ -1,4 +1,4 @@
-import gql from "graphql-tag";
+import gql from 'graphql-tag'
 
 export default gql`
   subscription onTextAdded {
@@ -32,4 +32,4 @@ export default gql`
       }
     }
   }
-`;
+`

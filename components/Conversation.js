@@ -58,7 +58,6 @@ export default class Conversation extends React.Component {
 
   renderConversationFooter = () => {
     const { onTextMessageSend } = this.props;
-
     return (
       <footer className="h-16 border-t">
         <form className="h-full" onSubmit={e => e.preventDefault()}>

@@ -4,6 +4,7 @@ import moment from 'moment'
 
 import redirect from '../lib/redirect'
 import checkLoggedIn from '../lib/checkLoggedIn'
+
 import AuthenticatedUser from '../components/AuthenticatedUser'
 import Avatar from '../components/ui/Avatar'
 import Footer from '../components/Footer'
@@ -11,7 +12,11 @@ import SearchInput from '../components/SearchInput'
 import ConversationList from '../components/ConversationList'
 import UserList from '../components/UserList'
 import Conversation from '../components/Conversation'
+
 import randomEmoji from '../utils/randomEmoji'
+
+// graphql
+import ALL_CONVERSATIONS_QUERY from '../graphql/queries/allConversations'
 import MY_CONVERSATIONS_QUERY from '../graphql/queries/myConversations'
 import USERS_QUERY from '../graphql/queries/users'
 import CREATE_CONVERSATION_MUTATION from '../graphql/mutations/createConversation'
@@ -89,7 +94,7 @@ export default class Index extends React.Component {
 
   renderConversationList () {
     return (
-      <Query query={MY_CONVERSATIONS_QUERY}>
+      <Query query={ALL_CONVERSATIONS_QUERY}>
         {({ loading, error, data, subscribeToMore }) => (
           <ConversationList
             onClick={conversation => {
@@ -105,36 +110,40 @@ export default class Index extends React.Component {
             {...{
               loading,
               error,
-              conversations: data.me.conversations.filter(
-                conversation =>
-                  this.state.searchInput !== ''
-                    ? conversation.name
-                      .toUpperCase()
-                      .includes(this.state.searchInput.toUpperCase())
-                    : conversation
-              )
+              conversations: this.state.searchInput !== '' ? data.conversations.filter(
+                conversation => (
+                  conversation
+                    .name
+                    .toUpperCase()
+                    .includes(this.state.searchInput.toUpperCase())
+                )
+              ) : data.conversations
             }}
             subscribeToNewConversationMessages={() =>
               subscribeToMore({
                 document: TEXT_ADDED_SUBSCRIPTION,
                 variables: {},
                 updateQuery: (prev, { subscriptionData }) => {
+                  console.log('helo her', subscriptionData)
                   if (!subscriptionData.data) return prev
 
                   const newText = subscriptionData.data.text.node
-                  const conversationExists = prev.me.conversations.find(
+                  const conversationExists = prev.conversations.find(
                     conversation => conversation.id === newText.conversation.id
                   )
 
                   if (conversationExists) {
+                    console.log('helo her1', newText)
+
+                    const checkParticipant = participant => participant.id === newText.author.id
                     // Add message to an existing conversation
-                    const conversations = prev.me.conversations.map(
+                    const conversations = prev.conversations.map(
                       conversation => {
                         if (conversation.id === conversationExists.id) {
-                          const { conversation: chat } = newText
                           return {
                             ...conversation,
-                            texts: chat.texts
+                            participants: conversation.participants.some(checkParticipant) ? conversation.participants : [...conversation.participants, newText.author],
+                            texts: newText.conversation.texts
                           }
                         }
 
@@ -144,21 +153,17 @@ export default class Index extends React.Component {
 
                     return {
                       ...prev,
-                      me: {
-                        ...prev.me,
-                        conversations
-                      }
+                      conversations
                     }
                   } else {
+                    console.log('helo her2', newText)
+
                     // Add a new conversation to conversations along with the new message
                     const { conversation } = newText
 
                     return {
                       ...prev,
-                      me: {
-                        ...prev.me,
-                        conversations: [...prev.me.conversations, conversation]
-                      }
+                      conversations: [...prev.conversations, conversation]
                     }
                   }
                 }
@@ -313,10 +318,10 @@ export default class Index extends React.Component {
     return (
       <Mutation mutation={SEND_TEXT_MESSAGE_MUTATION}>
         {(sendTextMessage, { loading, error, data }) => (
-          <Query query={MY_CONVERSATIONS_QUERY}>
+          <Query query={ALL_CONVERSATIONS_QUERY}>
             {({ loading, error, data }) => (
               <>
-                {data.me.conversations.map(conversation => (
+                {data.conversations.map(conversation => (
                   <div
                     key={conversation.id}
                     className={[
@@ -357,6 +362,7 @@ export default class Index extends React.Component {
     }
 
     if (context.name === contexts.USER) {
+      console.log('here')
       const conversationExists = me.conversations.find(
         conversation =>
           conversation.participants.length === 2 &&
@@ -423,7 +429,7 @@ export default class Index extends React.Component {
       <div className='flex flex-col justify-center items-center h-screen'>
         {this.renderHeader()}
         <div
-          className='w-2/3 rounded border flex bg-white overflow-hidden'
+          className='w-2/3 shadow-lg rounded border flex bg-white overflow-hidden'
           style={{ height: 500 }}
         >
           <div id='leftTile' className='w-1/3 border-r flex flex-col'>
