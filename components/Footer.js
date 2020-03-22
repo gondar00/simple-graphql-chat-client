@@ -3,10 +3,11 @@ export default () => (
     Made by{' '}
     <a
       className='text-black'
-      href='https://github.com/gondar00'
+      href='https://www.ucsf.edu/'
       target='_blank'
+      rel='noopener noreferrer'
     >
-      Gandharv
+      UCSF
     </a>
   </div>
 )
