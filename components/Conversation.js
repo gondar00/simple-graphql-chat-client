@@ -26,7 +26,10 @@ export default class Conversation extends React.Component {
       <header className="h-16 border-b p-4 flex justify-between items-center">
         <div className="flex items-center">
           <Avatar className="mr-4" initials={conversation.name} size="large" />
-          <div className="font-bold">{conversation.name}</div>
+          <div className="font-bold">
+            {conversation.name}
+          </div>
+          <span className='ml-2 text-red text-xs cursor-pointer'><a>(report)</a></span>
         </div>
         <div className="flex">
           {conversation.participants.map(participant => (

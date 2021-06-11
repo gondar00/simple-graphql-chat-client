@@ -57,7 +57,7 @@ export default class Index extends React.Component {
     return (
       <AuthenticatedUser>
         {({ logout, data: { me } }) => (
-          <header className='my-16 w-full'>
+          <header className='m-4'>
             <div className='text-center'>
               <div className='flex flex-col items-center text-grey'>
                 Logged in as {me.username}
