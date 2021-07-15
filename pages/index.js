@@ -30,7 +30,7 @@ const contexts = {
 }
 
 export default class Index extends React.Component {
-  constructor (props) {
+  constructor(props) {
     super(props)
     this.state = {
       searchInput: '',
@@ -42,7 +42,7 @@ export default class Index extends React.Component {
     }
   }
 
-  static async getInitialProps (context, apolloClient) {
+  static async getInitialProps(context, apolloClient) {
     const { me } = await checkLoggedIn(context.apolloClient)
 
     if (!me) {
@@ -53,7 +53,7 @@ export default class Index extends React.Component {
     return { me }
   }
 
-  renderHeader () {
+  renderHeader() {
     return (
       <AuthenticatedUser>
         {({ logout, data: { me } }) => (
@@ -79,7 +79,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderSearchInput () {
+  renderSearchInput() {
     return (
       <SearchInput
         onChange={searchInput => {
@@ -92,7 +92,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderConversationList () {
+  renderConversationList() {
     return (
       <Query query={ALL_CONVERSATIONS_QUERY}>
         {({ loading, error, data, subscribeToMore }) => (
@@ -174,7 +174,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderUserList () {
+  renderUserList() {
     return (
       <Query query={USERS_QUERY}>
         {({ loading, error, data, subscribeToMore }) => (
@@ -218,7 +218,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderTextMessageList () {
+  renderTextMessageList() {
     return (
       <Query query={MY_CONVERSATIONS_QUERY}>
         {({ loading, error, data }) => {
@@ -277,7 +277,7 @@ export default class Index extends React.Component {
                               {({ isAuthenticated, data: { me } }) => {
                                 const author =
                                   isAuthenticated &&
-                                  me.id === textMessage.author.id
+                                    me.id === textMessage.author.id
                                     ? 'You'
                                     : textMessage.author.username
                                 return (
@@ -304,7 +304,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderConversationNotSelected () {
+  renderConversationNotSelected() {
     return (
       <div className='flex-1 flex flex-col h-full items-center justify-center'>
         <div className='text-5xl'>{randomEmoji()}</div>
@@ -313,7 +313,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderConversations () {
+  renderConversations() {
     const { context } = this.state
     return (
       <Mutation mutation={SEND_TEXT_MESSAGE_MUTATION}>
@@ -327,22 +327,30 @@ export default class Index extends React.Component {
                     className={[
                       'h-full',
                       context.name === contexts.CONVERSATION &&
-                      context.id === conversation.id
+                        context.id === conversation.id
                         ? 'block'
                         : 'hidden'
                     ].join(' ')}
                   >
-                    <Conversation
-                      conversation={conversation}
-                      onTextMessageSend={text => {
-                        sendTextMessage({
-                          variables: {
-                            conversationId: conversation.id,
-                            text
-                          }
-                        })
+                    <AuthenticatedUser>
+                      {({ isAuthenticated, data: { me } }) => {
+                        return (
+                          <Conversation
+                            userId={me.id}
+                            conversation={conversation}
+                            onTextMessageSend={text => {
+                              sendTextMessage({
+                                variables: {
+                                  conversationId: conversation.id,
+                                  text
+                                }
+                              })
+                            }}
+                          />
+                        )
                       }}
-                    />
+                    </AuthenticatedUser>
+
                   </div>
                 ))}
               </>
@@ -353,7 +361,7 @@ export default class Index extends React.Component {
     )
   }
 
-  renderWindowsFromContext ({ me }) {
+  renderWindowsFromContext({ me }) {
     let renderWindow
     const { context } = this.state
 
@@ -362,7 +370,6 @@ export default class Index extends React.Component {
     }
 
     if (context.name === contexts.USER) {
-      console.log('here')
       const conversationExists = me.conversations.find(
         conversation =>
           conversation.participants.length === 2 &&
@@ -424,7 +431,7 @@ export default class Index extends React.Component {
     )
   }
 
-  render () {
+  render() {
     return (
       <div className='flex flex-col justify-center items-center h-screen'>
         {this.renderHeader()}

@@ -1,5 +1,8 @@
 import MessageList from "./MessageList";
 import Avatar from "./ui/Avatar";
+import { Mutation } from 'react-apollo'
+
+import CREATE_ALERT_MUTATION from '../graphql/mutations/createAlert'
 
 export default class Conversation extends React.Component {
   constructor(props) {
@@ -59,8 +62,9 @@ export default class Conversation extends React.Component {
     );
   }
 
-  renderConversationFooter = () => {
+  renderConversationFooter = (createAlert) => {
     const { onTextMessageSend } = this.props;
+    console.log(this.props.userId)
     return (
       <footer className="h-16 border-t">
         <form className="h-full" onSubmit={e => e.preventDefault()}>
@@ -76,6 +80,12 @@ export default class Conversation extends React.Component {
                 e.preventDefault();
                 onTextMessageSend && onTextMessageSend(text);
                 this.setState({ text: "" });
+                createAlert({
+                  variables: {
+                    author: this.props.userId,
+                    text
+                  }
+                })
               }
             }}
           />
@@ -86,11 +96,15 @@ export default class Conversation extends React.Component {
 
   render() {
     return (
-      <div className="flex flex-col h-full">
-        {this.renderConversationHeader()}
-        {this.renderConversationBody()}
-        {this.renderConversationFooter()}
-      </div>
+      <Mutation mutation={CREATE_ALERT_MUTATION}>
+        {(createAlert, { loading, error, data }) => (
+            <div className="flex flex-col h-full">
+              {this.renderConversationHeader()}
+              {this.renderConversationBody()}
+              {this.renderConversationFooter(createAlert)}
+            </div>
+        )}
+      </Mutation>
     );
   }
 }

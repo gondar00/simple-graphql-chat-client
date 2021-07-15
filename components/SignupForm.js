@@ -13,6 +13,10 @@ const Signup = ({ client }) => {
     <Mutation
       mutation={SIGNUP_MUTATION}
       onCompleted={data => {
+        if(data.signup.user.reports > 3) {
+          window.alert('Sorry, you have been reported more than 3 times!')
+          return
+        }
         // Store the token in cookie
         document.cookie = cookie.serialize('token', data.signup.token, {
           maxAge: 30 * 24 * 60 * 60 // 30 days
@@ -48,9 +52,8 @@ const Signup = ({ client }) => {
             className='gradient-primary text-white p-4 rounded font-bold block w-full uppercase text-sm'
             type='submit'
           >
-            {!loading && !data && "Let's chat!"}
+            {!loading && "Let's chat!"}
             {loading && 'Signing up...'}
-            {!loading && data && 'Redirecting...'}
           </button>
           {error && (
             <p className='text-red mt-4'>Opss! Something went wrong.</p>

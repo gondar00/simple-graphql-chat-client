@@ -7,6 +7,8 @@ export default gql`
       user {
         id
         username
+        name
+        reports
       }
     }
   }
