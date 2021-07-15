@@ -11,6 +11,7 @@ export default ({ messages }) => (
             text={message.text}
             author={message.author.username}
             direction={message.author.id === me.id ? 'outgoing' : 'incoming'}
+            authorId={message.author.id}
           />
         ))}
       </>

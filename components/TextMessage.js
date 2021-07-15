@@ -1,6 +1,25 @@
 import Avatar from './ui/Avatar'
+import { Mutation } from 'react-apollo'
 
-export default ({ direction, text, author }) => (
+import CREATE_REPORT_MUTATION from '../graphql/mutations/createReport'
+
+const getReportBtn = (data, createReport, authorId) => {
+  console.log(data)
+  if (data && data.createReport.id) {
+    return (
+      <span key={data.createReport.id} className='ml-2 text-red text-xs cursor-pointer'>(reported!)</span>
+    )
+  }
+
+  return (
+    <span onClick={() => createReport({
+      variables: {
+        author: authorId,
+      }
+    })} className='ml-2 text-red text-xs cursor-pointer'>(report)</span>
+  )
+}
+export default ({ direction, text, author, authorId }) => (
   <div
     style={{
       transform: direction === 'incoming' && 'scaleX(-1)'
@@ -16,6 +35,9 @@ export default ({ direction, text, author }) => (
             }}
           >
             {author}
+            <Mutation mutation={CREATE_REPORT_MUTATION}>
+              {(createReport, { loading, error, data }) => getReportBtn(data, createReport, authorId)}
+            </Mutation>
           </div>
           <div
             className={[

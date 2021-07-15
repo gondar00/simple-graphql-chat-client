@@ -26,7 +26,6 @@ const getContent = (item) => {
           </div>  
         </div>
       </td>
-      
       <td className="px-6 py-4 whitespace-nowrap">
         <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
           {item.author.reports > 3 ? 'Inactive': 'Active'}

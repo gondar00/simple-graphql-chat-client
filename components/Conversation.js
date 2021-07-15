@@ -32,7 +32,6 @@ export default class Conversation extends React.Component {
           <div className="font-bold">
             {conversation.name}
           </div>
-          <span className='ml-2 text-red text-xs cursor-pointer'><a>(report)</a></span>
         </div>
         <div className="flex">
           {conversation.participants.map(participant => (
